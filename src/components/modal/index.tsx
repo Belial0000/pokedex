@@ -7,6 +7,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { TransitionProps } from "@mui/material/transitions";
+import { useAppSelector, useAppDispatch } from "../../hook";
+import { modalToggler } from "../../store/modalSlice";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -14,42 +16,42 @@ const Transition = React.forwardRef(function Transition(
   },
   ref: React.Ref<unknown>
 ) {
-  return <Slide direction="up" ref={ref} {...props} />;
+  return <Slide direction="right" ref={ref} {...props} />;
 });
 
 export default function Modal() {
-  const [open, setOpen] = React.useState(false);
+  const modalState = useAppSelector((state) => state.modal.open);
+  const pokemon = useAppSelector((state) => state.pokemon.selectedPokemon);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const dispatch = useAppDispatch();
 
   return (
     <div>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Slide in alert dialog
-      </Button>
       <Dialog
-        open={open}
+        open={modalState}
         TransitionComponent={Transition}
         keepMounted
-        onClose={handleClose}
-        aria-describedby="alert-dialog-slide-description"
+        onClose={() => dispatch(modalToggler(!modalState))}
       >
-        <DialogTitle>{"Use Google's location service?"}</DialogTitle>
+        <DialogTitle> {pokemon?.name.toUpperCase()}</DialogTitle>
+        <DialogTitle>Stats</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-slide-description">
-            Let Google help apps determine location. This means sending
-            anonymous location data to Google, even when no apps are running.
-          </DialogContentText>
+          {pokemon?.stats.map((stats) => (
+            <DialogContentText>
+              {stats.stat.name.toUpperCase()} : {stats.base_stat}
+            </DialogContentText>
+          ))}
+        </DialogContent>
+        <DialogTitle>Abilities</DialogTitle>
+        <DialogContent>
+          {pokemon?.abilities.map((ability) => (
+            <DialogContentText>{ability.ability.name}</DialogContentText>
+          ))}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={handleClose}>Agree</Button>
+          <Button onClick={() => dispatch(modalToggler(!modalState))}>
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

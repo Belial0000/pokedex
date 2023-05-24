@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { Box, Button, TextField } from "@mui/material";
 import styles from "./styles.module.scss";
 
 function SearchForm() {
-  const [text, setText] = useState("");
-
   return (
     <Box
       component="form"
@@ -17,21 +15,44 @@ function SearchForm() {
       noValidate
       autoComplete="off"
     >
-      <TextField
-        className={styles.textField}
-        label="Search Pokemon"
-        color="secondary"
-        focused
-        fullWidth
-      />
-      <Button
-        className={styles.button}
-        variant="contained"
-        size="small"
-        color="secondary"
-      >
-        search
-      </Button>
+      <div>
+        <div style={{ display: "flex", margin: "20px 0px" }}>
+          <TextField
+            className={styles.textField}
+            label="Search Pokemon"
+            color="secondary"
+            focused
+            fullWidth
+          />
+          <Button
+            className={styles.button}
+            variant="contained"
+            size="small"
+            color="secondary"
+          >
+            search
+          </Button>
+        </div>
+
+        <div>
+          <Button
+            className={styles.button}
+            variant="contained"
+            size="small"
+            color="secondary"
+          >
+            search
+          </Button>{" "}
+          <Button
+            className={styles.button}
+            variant="contained"
+            size="small"
+            color="secondary"
+          >
+            search
+          </Button>{" "}
+        </div>
+      </div>
     </Box>
   );
 }
