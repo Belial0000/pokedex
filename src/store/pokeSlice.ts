@@ -16,7 +16,6 @@ interface PokemonData {
       url: string;
     };
   }[];
-
   stats: {
     stat: {
       name: string;
@@ -42,6 +41,8 @@ interface PokedexState {
   next: string | null;
   loading: boolean;
   error: string | null;
+  limit: number;
+  typesArray: string[];
 }
 
 const initialState: PokedexState = {
@@ -51,16 +52,27 @@ const initialState: PokedexState = {
   next: null,
   loading: false,
   error: null,
+  limit: 10,
+  typesArray: [],
 };
 
 export const fetchPokemons = createAsyncThunk<
-  PokemonData[],
+  { pokemons: PokemonData[]; next: string; previous: string },
   undefined,
-  { rejectValue: string }
->("pokemon/fetchPokemons", async (_, { rejectWithValue }) => {
+  { rejectValue: string; state: { pokemon: PokedexState } }
+>("pokemon/fetchPokemons", async (_, { rejectWithValue, getState }) => {
+  const limit = getState().pokemon.limit;
+  const typesArray = getState().pokemon.typesArray;
+
+  console.log(getState());
+
   try {
-    const response: AxiosResponse<{ results: Pokemon[] }> = await axios.get(
-      "https://pokeapi.co/api/v2/pokemon/?offset=1&limit=10"
+    const response: AxiosResponse<{
+      results: Pokemon[];
+      next: string;
+      previous: string;
+    }> = await axios.get(
+      `https://pokeapi.co/api/v2/pokemon/?offset=0&limit=${limit}`
     );
     const { data } = response;
 
@@ -68,6 +80,7 @@ export const fetchPokemons = createAsyncThunk<
       axios.get<PokemonData>(item.url)
     );
     const pokemonResponses = await Promise.all(pokemonPromises);
+
     const pokemons = pokemonResponses.map((response) => {
       const { name, abilities, stats, sprites, id, types } = response.data;
       return {
@@ -80,7 +93,7 @@ export const fetchPokemons = createAsyncThunk<
       };
     });
 
-    return pokemons;
+    return { pokemons, next: data.next, previous: data.previous };
   } catch (error) {
     return rejectWithValue("Server Error!");
   }
@@ -95,6 +108,12 @@ const pokedexSlice = createSlice({
       const pokemon = state.pokemonsArray.find((poke) => poke.id === id);
       state.selectedPokemon = pokemon || null;
     },
+    changePokemonLimit(state, action: PayloadAction<number>) {
+      state.limit = action.payload;
+    },
+    filterPokemonType(state, action) {
+      state.typesArray = action.payload;
+    },
   },
   extraReducers(builder) {
     builder
@@ -104,7 +123,9 @@ const pokedexSlice = createSlice({
       })
       .addCase(fetchPokemons.fulfilled, (state, action) => {
         state.loading = false;
-        state.pokemonsArray = action.payload;
+        state.pokemonsArray = action.payload.pokemons;
+        state.next = action.payload.next;
+        state.previous = action.payload.previous;
       })
       .addCase(fetchPokemons.rejected, (state, action) => {
         state.loading = false;
@@ -112,6 +133,8 @@ const pokedexSlice = createSlice({
       });
   },
 });
-export const { selectPokemon } = pokedexSlice.actions;
+
+export const { selectPokemon, changePokemonLimit, filterPokemonType } =
+  pokedexSlice.actions;
 
 export default pokedexSlice.reducer;

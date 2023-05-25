@@ -12,7 +12,11 @@ import { useAppSelector, useAppDispatch } from "../../hook";
 import { modalToggler } from "../../store/modalSlice";
 
 import { Button } from "@mui/material";
-import { fetchPokemons, selectPokemon } from "../../store/pokeSlice";
+import {
+  fetchPokemons,
+  selectPokemon,
+  changePokemonLimit,
+} from "../../store/pokeSlice";
 import styles from "./styles.module.scss";
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -64,7 +68,8 @@ const colours: Color = {
 function Cards() {
   const modalState = useAppSelector((state) => state.modal.open);
   const pokemonState = useAppSelector((state) => state.pokemon);
-
+  const pokemonLimit = useAppSelector((state) => state.pokemon.limit);
+  const typesFilter = useAppSelector((state) => state.pokemon.typesArray);
   console.log(useAppSelector((state) => state));
   console.log(pokemonState);
   console.log(pokemonState?.pokemonsArray[1]?.abilities);
@@ -72,7 +77,7 @@ function Cards() {
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchPokemons());
-  }, [dispatch]);
+  }, [dispatch, pokemonLimit, typesFilter]);
 
   return (
     <Box style={{ marginTop: "40px" }} sx={{ flexGrow: 1 }}>
@@ -93,14 +98,13 @@ function Cards() {
             key={index}
           >
             <Item className={styles.item} style={{ width: "200px" }}>
-              <Card
-                sx={{ maxWidth: 345 }}
-                onClick={() => {
-                  dispatch(modalToggler(!modalState));
-                  dispatch(selectPokemon(pokemon.id));
-                }}
-              >
-                <CardActionArea>
+              <Card sx={{ maxWidth: 345 }}>
+                <CardActionArea
+                  onClick={() => {
+                    dispatch(modalToggler(!modalState));
+                    dispatch(selectPokemon(pokemon.id));
+                  }}
+                >
                   <CardMedia
                     component="img"
                     height="200px"
@@ -126,6 +130,27 @@ function Cards() {
                     </div>
                   ))}
                 </CardActions>
+                <Button
+                  onClick={() => {
+                    dispatch(changePokemonLimit(10));
+                  }}
+                >
+                  10
+                </Button>{" "}
+                <Button
+                  onClick={() => {
+                    dispatch(changePokemonLimit(20));
+                  }}
+                >
+                  20
+                </Button>{" "}
+                <Button
+                  onClick={() => {
+                    dispatch(changePokemonLimit(30));
+                  }}
+                >
+                  30
+                </Button>
               </Card>
             </Item>
           </Grid>
