@@ -93,7 +93,18 @@ export const fetchPokemons = createAsyncThunk<
       };
     });
 
-    return { pokemons, next: data.next, previous: data.previous };
+    // Фильтрация покемонов по типам
+    const filteredPokemons = pokemons.filter((pokemon) => {
+      return typesArray.every((type) =>
+        pokemon.types.some((pokemonType) => pokemonType.type.name === type)
+      );
+    });
+
+    return {
+      pokemons: filteredPokemons,
+      next: data.next,
+      previous: data.previous,
+    };
   } catch (error) {
     return rejectWithValue("Server Error!");
   }

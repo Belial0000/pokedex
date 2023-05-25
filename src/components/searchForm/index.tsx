@@ -8,7 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import styles from "./styles.module.scss";
-import { useAppSelector, useAppDispatch } from "../../hook";
+import { useAppDispatch, useAppSelector } from "../../hook";
 import { filterPokemonType } from "../../store/pokeSlice";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -21,21 +21,21 @@ const MenuProps = {
   },
 };
 const pokemonTypes = [
-  "Bug",
-  "Dragon",
-  "Electric",
-  "Fairy",
-  "Normal",
-  "Psychic",
-  "Fighting",
-  "Water",
-  "Fire",
-  "Flying",
-  "Ice",
-  "Rock",
-  "Poison",
-  "Ground",
-  "Grass",
+  "bug",
+  "dragon",
+  "electric",
+  "fairy",
+  "normal",
+  "psychic",
+  "fighting",
+  "water",
+  "fire",
+  "flying",
+  "ice",
+  "rock",
+  "poison",
+  "ground",
+  "grass",
 ];
 function getStyles(name: string, personName: string[], theme: Theme) {
   return {
@@ -47,7 +47,6 @@ function getStyles(name: string, personName: string[], theme: Theme) {
 }
 
 function SearchForm() {
-  const pokemonLimit = useAppSelector((state) => state.pokemon.limit);
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const [personName, setPersonName] = React.useState<string[]>([]);

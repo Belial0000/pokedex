@@ -16,6 +16,7 @@ import {
   fetchPokemons,
   selectPokemon,
   changePokemonLimit,
+  filterPokemonType,
 } from "../../store/pokeSlice";
 import styles from "./styles.module.scss";
 const Item = styled(Paper)(({ theme }) => ({
@@ -116,17 +117,22 @@ function Cards() {
                     </Typography>
                   </CardContent>
                 </CardActionArea>
-                <CardActions>
+                <CardActions
+                  style={{ display: "flex", justifyContent: "center" }}
+                >
                   {pokemon.types.map((type, index) => (
                     <div
                       key={index}
                       style={{
                         backgroundColor: colours[type.type.name as keyof Color],
+                        width: "50%",
+                        height: "100%",
+                        textTransform: "uppercase",
+                        borderRadius: "5px",
+                        fontWeight: "600",
                       }}
                     >
-                      <Button size="small" color="inherit">
-                        {type.type.name}
-                      </Button>
+                      {type.type.name}
                     </div>
                   ))}
                 </CardActions>
