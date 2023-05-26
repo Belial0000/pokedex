@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { experimentalStyled as styled } from "@mui/material/styles";
-import CircularProgress from "@mui/material/CircularProgress";
+
 import LinearProgress from "@mui/material/LinearProgress";
 
 import Box from "@mui/material/Box";
@@ -11,17 +11,16 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { CardActionArea, CardActions } from "@mui/material";
+
 import { useAppSelector, useAppDispatch } from "../../hook";
+
+import { fetchPokemons, selectPokemon } from "../../store/pokeSlice";
 import { modalToggler } from "../../store/modalSlice";
 
-import { Button } from "@mui/material";
-import {
-  fetchPokemons,
-  selectPokemon,
-  changePokemonLimit,
-  filterPokemonType,
-} from "../../store/pokeSlice";
+import { colours, Color } from "./const";
+
 import styles from "./styles.module.scss";
+
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -29,85 +28,44 @@ const Item = styled(Paper)(({ theme }) => ({
   textAlign: "center",
   color: theme.palette.text.secondary,
 }));
-interface Color {
-  normal: string;
-  fire: string;
-  water: string;
-  electric: string;
-  grass: string;
-  ice: string;
-  fighting: string;
-  poison: string;
-  ground: string;
-  flying: string;
-  psychic: string;
-  bug: string;
-  rock: string;
-  ghost: string;
-  dragon: string;
-  dark: string;
-  steel: string;
-  fairy: string;
-}
-const colours: Color = {
-  normal: "#A8A77A",
-  fire: "#EE8130",
-  water: "#6390F0",
-  electric: "#F7D02C",
-  grass: "#7AC74C",
-  ice: "#96D9D6",
-  fighting: "#C22E28",
-  poison: "#A33EA1",
-  ground: "#E2BF65",
-  flying: "#A98FF3",
-  psychic: "#F95587",
-  bug: "#A6B91A",
-  rock: "#B6A136",
-  ghost: "#735797",
-  dragon: "#6F35FC",
-  dark: "#705746",
-  steel: "#B7B7CE",
-  fairy: "#D685AD",
-};
+
 function Cards() {
+  const dispatch = useAppDispatch();
+
   const modalState = useAppSelector((state) => state.modal.open);
   const pokemonState = useAppSelector((state) => state.pokemon);
   const pokemonLimit = useAppSelector((state) => state.pokemon.limit);
   const typesFilter = useAppSelector((state) => state.pokemon.typesArray);
   const clearFilterState = useAppSelector((state) => state.pokemon.clearFilter);
-
   const filteredPokemons = useAppSelector(
     (state) => state.pokemon.filteredPokemons
   );
+  // рендер масива фильтрованных покемонов если в фильтре есть значения, если нет то дефолтный массив
   const pokemonsArray =
     typesFilter.length > 0 ? filteredPokemons : pokemonState.pokemonsArray;
-  console.log(useAppSelector((state) => state));
-  console.log(pokemonState);
-  console.log(pokemonState?.pokemonsArray[1]?.abilities);
-  console.log(pokemonsArray);
 
-  const dispatch = useAppDispatch();
   useEffect(() => {
+    // повторный запрос если меняется лимит и очистка
     dispatch(fetchPokemons());
   }, [dispatch, pokemonLimit, clearFilterState]);
 
   return (
-    <Box style={{ marginTop: "40px" }} sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, marginTop: "40px" }}>
+      {/* Прелоудер */}
       {pokemonState.loading && <LinearProgress color="secondary" />}
+      {/* Если нет покемонов выбранных типов  */}
       {pokemonState.filteredPokemons.length <= 0 &&
         pokemonState.typesArray.length > 0 && (
           <h2 style={{ textAlign: "center" }}>No pokemon of this type found</h2>
         )}
-
       <Grid
-        style={{}}
         container
         spacing={{ xs: 6, md: 8 }}
         columns={{ xs: 2, sm: 8, md: 12, lg: 24 }}
       >
         {pokemonsArray.map((pokemon, index) => (
           <Grid
-            style={{ display: "flex", justifyContent: "center" }}
+            className={styles.grid}
             item
             xs={2}
             sm={4}
@@ -115,8 +73,8 @@ function Cards() {
             lg={8}
             key={index}
           >
-            <Item className={styles.item} style={{ width: "200px" }}>
-              <Card sx={{ maxWidth: 345 }}>
+            <Item className={styles.item}>
+              <Card>
                 <CardActionArea
                   onClick={() => {
                     dispatch(modalToggler(!modalState));
@@ -134,13 +92,7 @@ function Cards() {
                     </Typography>
                   </CardContent>
                 </CardActionArea>
-                <CardActions
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    marginBottom: "15px",
-                  }}
-                >
+                <CardActions className={styles.typesContainer}>
                   {pokemon.types.map((type, index) => (
                     <div
                       key={index}

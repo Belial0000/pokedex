@@ -1,7 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-type Modal = {
-  open: boolean;
-};
+import { Modal } from "./const";
+
 const initialState: Modal = {
   open: false,
 };
@@ -9,6 +8,7 @@ const modalSlice = createSlice({
   name: "modal",
   initialState,
   reducers: {
+    // открыть закрыть (true / false) модальное окно
     modalToggler(state, action: PayloadAction<boolean>) {
       console.log("modalToggler", action);
       state.open = !state.open;
