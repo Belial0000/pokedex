@@ -36,16 +36,18 @@ export default function Modal() {
         <DialogTitle> {pokemon?.name.toUpperCase()}</DialogTitle>
         <DialogTitle>Stats</DialogTitle>
         <DialogContent>
-          {pokemon?.stats.map((stats) => (
-            <DialogContentText>
+          {pokemon?.stats.map((stats, index) => (
+            <DialogContentText key={index}>
               {stats.stat.name.toUpperCase()} : {stats.base_stat}
             </DialogContentText>
           ))}
         </DialogContent>
         <DialogTitle>Abilities</DialogTitle>
         <DialogContent>
-          {pokemon?.abilities.map((ability) => (
-            <DialogContentText>{ability.ability.name}</DialogContentText>
+          {pokemon?.abilities.map((ability, index) => (
+            <DialogContentText key={index}>
+              {ability.ability.name}
+            </DialogContentText>
           ))}
         </DialogContent>
         <DialogActions>

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosResponse } from "axios";
+import { WritableDraft } from "immer/dist/internal";
 
 interface Pokemon {
   name: string;
@@ -43,6 +44,9 @@ interface PokedexState {
   error: string | null;
   limit: number;
   typesArray: string[];
+  filterByName: boolean;
+  filteredPokemons: PokemonData[];
+  clearFilter: boolean;
 }
 
 const initialState: PokedexState = {
@@ -54,6 +58,9 @@ const initialState: PokedexState = {
   error: null,
   limit: 10,
   typesArray: [],
+  filterByName: false,
+  filteredPokemons: [],
+  clearFilter: false,
 };
 
 export const fetchPokemons = createAsyncThunk<
@@ -62,9 +69,6 @@ export const fetchPokemons = createAsyncThunk<
   { rejectValue: string; state: { pokemon: PokedexState } }
 >("pokemon/fetchPokemons", async (_, { rejectWithValue, getState }) => {
   const limit = getState().pokemon.limit;
-  const typesArray = getState().pokemon.typesArray;
-
-  console.log(getState());
 
   try {
     const response: AxiosResponse<{
@@ -93,15 +97,8 @@ export const fetchPokemons = createAsyncThunk<
       };
     });
 
-    // Фильтрация покемонов по типам
-    const filteredPokemons = pokemons.filter((pokemon) => {
-      return typesArray.every((type) =>
-        pokemon.types.some((pokemonType) => pokemonType.type.name === type)
-      );
-    });
-
     return {
-      pokemons: filteredPokemons,
+      pokemons: pokemons,
       next: data.next,
       previous: data.previous,
     };
@@ -124,6 +121,37 @@ const pokedexSlice = createSlice({
     },
     filterPokemonType(state, action) {
       state.typesArray = action.payload;
+
+      const filteredPokemonsByType = state.pokemonsArray.filter((pokemon) => {
+        return state.typesArray.every((type) =>
+          pokemon.types.some((pokemonType) => pokemonType.type.name === type)
+        );
+      });
+      state.filteredPokemons = filteredPokemonsByType;
+    },
+    filterPokemonName(state, action: PayloadAction<boolean>) {
+      state.filterByName = action.payload;
+      const pokemonsArray =
+        state.typesArray.length > 0
+          ? state.filteredPokemons
+          : state.pokemonsArray;
+      let filterByName: WritableDraft<PokemonData>[] = [];
+      filterByName = pokemonsArray.slice().sort((a, b) => {
+        if (state.filterByName ? a.name < b.name : a.name > b.name) {
+          return -1;
+        }
+        if (state.filterByName ? a.name > b.name : a.name < b.name) {
+          return 1;
+        }
+        return 0;
+      });
+
+      state.filteredPokemons = filterByName;
+      state.pokemonsArray = filterByName;
+    },
+    clearFilter(state, action: PayloadAction<boolean>) {
+      state.clearFilter = action.payload;
+      state.typesArray = [];
     },
   },
   extraReducers(builder) {
@@ -145,7 +173,12 @@ const pokedexSlice = createSlice({
   },
 });
 
-export const { selectPokemon, changePokemonLimit, filterPokemonType } =
-  pokedexSlice.actions;
+export const {
+  selectPokemon,
+  changePokemonLimit,
+  filterPokemonType,
+  filterPokemonName,
+  clearFilter,
+} = pokedexSlice.actions;
 
 export default pokedexSlice.reducer;

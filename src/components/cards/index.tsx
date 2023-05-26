@@ -1,5 +1,8 @@
 import React, { useEffect } from "react";
 import { experimentalStyled as styled } from "@mui/material/styles";
+import CircularProgress from "@mui/material/CircularProgress";
+import LinearProgress from "@mui/material/LinearProgress";
+
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
@@ -71,24 +74,38 @@ function Cards() {
   const pokemonState = useAppSelector((state) => state.pokemon);
   const pokemonLimit = useAppSelector((state) => state.pokemon.limit);
   const typesFilter = useAppSelector((state) => state.pokemon.typesArray);
+  const clearFilterState = useAppSelector((state) => state.pokemon.clearFilter);
+
+  const filteredPokemons = useAppSelector(
+    (state) => state.pokemon.filteredPokemons
+  );
+  const pokemonsArray =
+    typesFilter.length > 0 ? filteredPokemons : pokemonState.pokemonsArray;
   console.log(useAppSelector((state) => state));
   console.log(pokemonState);
   console.log(pokemonState?.pokemonsArray[1]?.abilities);
+  console.log(pokemonsArray);
 
   const dispatch = useAppDispatch();
   useEffect(() => {
     dispatch(fetchPokemons());
-  }, [dispatch, pokemonLimit, typesFilter]);
+  }, [dispatch, pokemonLimit, clearFilterState]);
 
   return (
     <Box style={{ marginTop: "40px" }} sx={{ flexGrow: 1 }}>
+      {pokemonState.loading && <LinearProgress color="secondary" />}
+      {pokemonState.filteredPokemons.length <= 0 &&
+        pokemonState.typesArray.length > 0 && (
+          <h2 style={{ textAlign: "center" }}>No pokemon of this type found</h2>
+        )}
+
       <Grid
         style={{}}
         container
         spacing={{ xs: 6, md: 8 }}
         columns={{ xs: 2, sm: 8, md: 12, lg: 24 }}
       >
-        {pokemonState.pokemonsArray.map((pokemon, index) => (
+        {pokemonsArray.map((pokemon, index) => (
           <Grid
             style={{ display: "flex", justifyContent: "center" }}
             item
@@ -118,7 +135,11 @@ function Cards() {
                   </CardContent>
                 </CardActionArea>
                 <CardActions
-                  style={{ display: "flex", justifyContent: "center" }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginBottom: "15px",
+                  }}
                 >
                   {pokemon.types.map((type, index) => (
                     <div
@@ -136,27 +157,6 @@ function Cards() {
                     </div>
                   ))}
                 </CardActions>
-                <Button
-                  onClick={() => {
-                    dispatch(changePokemonLimit(10));
-                  }}
-                >
-                  10
-                </Button>{" "}
-                <Button
-                  onClick={() => {
-                    dispatch(changePokemonLimit(20));
-                  }}
-                >
-                  20
-                </Button>{" "}
-                <Button
-                  onClick={() => {
-                    dispatch(changePokemonLimit(30));
-                  }}
-                >
-                  30
-                </Button>
               </Card>
             </Item>
           </Grid>
