@@ -41,5 +41,3 @@ shown (for example in a modal dialog).
 6. ** Show your skills
 
 
-* If the pokeapi.co is not accessible in your country (in Russia, for example, it may be blocked), you can use one of the free vpn’s to get access to it, for example this one: https://www.tunnelbear.com/ )
-** Show your skills, In addition to the requirements above you can implement anything you want using the API if you want to demonstrate more of your skills
